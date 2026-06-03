@@ -20,7 +20,7 @@ const state = {
   handItems: [], faceItem: null, lastFaceLm: null,
   level: 0,
   lastSeen: "", seenCount: 0, confirmedGesture: "",
-  lastEyebrow: 0, lastWinkR: 0, lastWinkL: 0,
+  lastEyebrow: 0, browArmed: false, lastWinkR: 0, lastWinkL: 0,
   winkUntil: { right: 0, left: 0 },
   flash: 0, flashColor: "57,255,20",
 };
@@ -129,8 +129,10 @@ function processFace(face, now) {
   const blends = blendMap(face);
   const fs = faceState(blends);
 
-  // 눈썹 올림 → 모드 토글 (cooldown)
-  if (fs.eyebrowRaise && now - state.lastEyebrow > 900) {
+  // 눈썹 올림 → 모드 토글 (rising-edge: 내렸다가 올릴 때만 1회)
+  if (fs.brow < 0.28) state.browArmed = true;
+  if (state.browArmed && fs.brow > 0.62 && now - state.lastEyebrow > 1200) {
+    state.browArmed = false;
     state.lastEyebrow = now;
     toggleMode();
   }
