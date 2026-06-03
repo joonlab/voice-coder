@@ -3,7 +3,8 @@ import { createTracker } from "./tracking.js";
 import {
   detectHandGesture, handBox, faceBox, blendMap, faceState, cheekPoint,
 } from "./gesture.js";
-import { AudioEngine, GESTURE_CHORDS } from "./audio.js";
+import { WsAudio } from "./ws-audio.js";
+import { GESTURE_CHORDS } from "./gesture-chords.js";
 import { Visualizer } from "./visual.js";
 import { MidiLog } from "./midilog.js";
 import { PianoRoll } from "./pianoroll.js";
@@ -31,9 +32,9 @@ async function start() {
   els.startBtn.disabled = true;
   els.startBtn.textContent = "초기화 중…";
   try {
+    // 카메라만 요청 (마이크는 Python 백엔드가 직접 사용)
     const stream = await navigator.mediaDevices.getUserMedia({
       video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } },
-      audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: false },
     });
     els.video.srcObject = stream;
     await els.video.play();
@@ -43,11 +44,17 @@ async function start() {
     syncSize();
     window.addEventListener("resize", syncSize);
 
-    audio = new AudioEngine();
-    await audio.init(stream);
+    audio = new WsAudio();
+    await audio.init();
 
     log = new MidiLog(els.logBody);
-    log.info("midicam started — hand mode");
+    if (audio.connected && audio.backendRunning !== false) {
+      log.info("midicam started — hand mode (python harmonizer)");
+    } else if (audio.connected && audio.backendRunning === false) {
+      log.info("WARN: 오디오 장치 미감지 — 헤드폰 연결 후 서버 재시작");
+    } else {
+      log.info("WARN: python 백엔드 미연결 — run.sh 로 서버를 실행하세요");
+    }
 
     tracker = await createTracker({
       withFace: true, onProgress: (m) => { els.startBtn.textContent = m; },

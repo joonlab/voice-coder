@@ -1,62 +1,75 @@
-# 🎤 Voice Coder — 제스처 보코더 뮤직 웹앱
+# 🎤 Voice Coder — 제스처 보코더 뮤직 (Python 하모나이저 + 웹 프론트)
 
-손 제스처·윙크·입 모양으로 **보코더(보컬 하모니)**를 연주하는 브라우저 웹앱.
-인스타그램에서 화제가 된 "코딩으로 연주하는 뮤지션 Julip"의 시스템을 웹 기술로 재현한 클론입니다.
+손가락 제스처·눈썹·윙크로 **목소리를 화음(보컬 하모니)으로 변조**하는 실시간 퍼포먼스 앱.
+인스타그램 "코딩으로 연주하는 뮤지션 Julip"의 `midicam` 시스템을 재현했습니다.
 
-> 카메라로 손을 펴면 목소리가 화음으로 퍼지고, 주먹을 쥐면 멈춥니다.
-> 윙크로 옥타브를 바꾸고, 입을 벌리면 필터가 열립니다. **모두 브라우저 안에서, 서버 없이.**
+> 카메라는 브라우저, **오디오는 Python 백엔드(pedalboard 하모나이저)**가 처리합니다.
+> 노래하면서 손가락을 펴면 내 목소리가 화음으로 겹쳐서 울립니다.
 
-## ✨ 기능
+## 🏗 구조 (백엔드/프론트 분리)
 
-| 동작 | 효과 |
-|------|------|
-| ✋ 손 펴기 (`open_palm`) | 보코더 화음 ON |
-| ✊ 주먹 (`closed_fist`) | 화음 OFF |
-| ✌️ 브이 (`victory`) | 코드 전환 (Cmaj7 → Dm7 → …) |
-| 👌 OK | 보코더 모드 토글 (가짜 ↔ 진짜 채널 보코더) |
-| 😉 윙크 | 옥타브 ±1 |
-| 😮 입 벌리기 | 로우패스 필터 열림 (와우 효과) |
-| 🖐 보조손 높이 | 공간감(딜레이) 조절 |
+```
+[브라우저 프론트]                         [Python 백엔드 (FastAPI)]
+ 카메라 getUserMedia                       sounddevice 마이크 입력
+ MediaPipe 손/얼굴 트래킹                   pedalboard 하모나이저 (PitchShift ×N)
+ 제스처 판별 · 박스/랜드마크                 → 헤드폰 출력
+ 피아노롤 · 터미널 로그 UI                          ▲
+        │                                          │
+        └──── WebSocket /ws ───────────────────────┘
+              프론트→백: {chord/mode}  ·  백→프론트: {오디오 레벨}
+```
 
-## 🛠 기술 스택
-
-- **트래킹**: [MediaPipe Tasks-Vision](https://ai.google.dev/edge/mediapipe) — HandLandmarker + FaceLandmarker(blendshapes)
-- **오디오**: Web Audio API (네이티브, 의존성 없음)
-  - *가짜 보코더*: 마이크 envelope → 코드 신스 게인 변조 (저지연·안정)
-  - *진짜 보코더*: 16밴드 채널 보코더 (밴드패스 뱅크 + envelope follower)
-- **비주얼**: Canvas 2D (오디오 리액티브 네온 바운딩 박스)
-- **빌드**: 없음. Vanilla JS + ESM, 정적 호스팅
+- **목소리→화음**: pedalboard `PitchShift`를 여러 개 띄워 입력 보컬을 3도·5도·옥타브로 시프트 → 실시간 보컬 하모니
+- **Face Mode**: 서브옥타브(-12) + 디스토션 = 빌런/로봇 톤
+- 브라우저 Web Audio의 음질·지연 한계를 Python DSP로 해결
 
 ## 🚀 실행
 
-카메라/마이크는 **HTTPS 또는 localhost**에서만 동작합니다.
-
 ```bash
-python3 -m http.server 8123
-# http://localhost:8123 접속
+cd backend
+./run.sh          # 의존성 설치 + 서버 기동 (http://localhost:8000)
 ```
 
-🎧 **헤드폰 권장** — 스피커 사용 시 진짜 보코더 모드에서 하울링이 생길 수 있습니다.
+그다음 브라우저에서 **http://localhost:8000** 접속 → 시작하기.
+
+🎧 **헤드폰 필수** — 마이크 소리가 출력되므로 스피커 사용 시 하울링이 발생합니다.
+
+### 의존성 (backend/requirements.txt)
+`fastapi`, `uvicorn`, `sounddevice`, `pedalboard`, `numpy`
+
+## 🎛 제스처 → 화음
+
+| 제스처 | 효과 |
+|--------|------|
+| ☝️ 검지 (`index_up`) | C — 낮고 어두운 보이싱 |
+| ✌️ 브이 (`peace_sign`) | Em — 마이너 |
+| 🤟 세 손가락 | Dm — 중간 |
+| ✋ 손바닥 (`open_palm`) | A — 높은 코러스(메이저+옥타브) |
+| 🤙 새끼 | G — 5도+옥타브 |
+| ✊ 주먹 | 화음 OFF (드라이 보컬만) |
+| 🤨 눈썹 올리기 | Hand ↔ Face 모드 전환 |
+| 😉 윙크 (Face) | 뺨에 🌟 |
 
 ## 📁 구조
 
 ```
-.
-├── index.html
-├── style.css
+app/
+├── index.html, style.css
 ├── js/
-│   ├── main.js     # 부트스트랩 / 루프 / 제스처→오디오 매핑
-│   ├── tracking.js # MediaPipe Hand+Face 초기화
-│   ├── gesture.js  # 손가락/윙크/입 판별 휴리스틱
-│   ├── audio.js    # Web Audio 보코더 엔진 (가짜/진짜)
-│   ├── visual.js   # Canvas 오버레이
-│   └── lyrics.js   # 타임스탬프 가사
-└── docs/
-    ├── SPEC.md     # 설계 문서
-    └── 01_analysis # 원본 영상 분석 (Gemini 3.1 Pro)
+│   ├── main.js          # 루프 / 제스처→오디오 매핑
+│   ├── tracking.js      # MediaPipe Hand+Face
+│   ├── gesture.js       # 제스처/윙크/눈썹 판별
+│   ├── gesture-chords.js# 제스처→화음 데이터(공유)
+│   ├── ws-audio.js      # WebSocket 오디오 클라이언트
+│   ├── visual.js, pianoroll.js, midilog.js
+│   └── audio.js         # (구) Web Audio 폴백 — 미사용
+└── backend/
+    ├── server.py        # FastAPI + WebSocket + 정적 서빙
+    ├── audio_engine.py  # pedalboard 하모나이저 + sounddevice
+    ├── requirements.txt
+    └── run.sh
 ```
 
 ## 📝 참고
-
-- 가사는 데모용 자작 텍스트이며 원곡 가사를 사용하지 않습니다.
-- 손 제스처 판별 휴리스틱은 [joonlab/cyberpunk-hand-particles](https://github.com/joonlab/cyberpunk-hand-particles)의 접근을 거리 기반으로 개선해 재구성했습니다.
+- 원곡 가사·제목은 재현하지 않으며 placeholder를 사용합니다.
+- 실시간 오디오 특성상 **로컬 실행 전용**입니다(클라우드 배포 불가).
