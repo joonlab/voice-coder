@@ -111,12 +111,13 @@ export function faceState(blends) {
   const brow = ((blends.browInnerUp ?? 0) * 0.6
     + (blends.browOuterUpLeft ?? 0) * 0.5
     + (blends.browOuterUpRight ?? 0) * 0.5);
-  const WINK = 0.5, OPEN = 0.28;
+  // 실측: 윙크 시 한쪽 ~0.45, 반대 ~0.22 / 양눈깜빡 시 둘 다 ~0.7
+  const WINK = 0.4, OPEN = 0.26, GAP = 0.18;
   // 주의: MediaPipe categoryName의 Left/Right는 피사체 기준 → 화면(거울)에선 반대
-  const winkLeft = L > WINK && R < OPEN;   // 피사체 왼눈
-  const winkRight = R > WINK && L < OPEN;   // 피사체 오른눈
-  const bothBlink = L > WINK && R > WINK;
-  const eyebrowRaise = brow > 0.45;
+  const winkLeft = L > WINK && R < OPEN && (L - R) > GAP;   // 피사체 왼눈
+  const winkRight = R > WINK && L < OPEN && (R - L) > GAP;   // 피사체 오른눈
+  const bothBlink = L > 0.5 && R > 0.5;
+  const eyebrowRaise = brow > 0.6;
   return { winkLeft, winkRight, bothBlink, eyebrowRaise, jawOpen: jaw, brow, eyeL: L, eyeR: R };
 }
 
