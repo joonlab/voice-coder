@@ -11,7 +11,7 @@ import sounddevice as sd
 from pedalboard import Pedalboard, PitchShift, Distortion, LowpassFilter, Gain
 
 SR = 44100
-BLOCK = 4096  # ~93ms. PitchShift가 화음을 내려면 큰 블록 필요.
+BLOCK = 1024  # ~23ms. 즉각 반응 우선(저지연). reset=True라 작은 블록도 화음 생성됨.
 
 # 제스처 → 화음 인터벌(반음). 0 = 드라이(원래 목소리). 음수 = 아래.
 GESTURE_INTERVALS = {
@@ -30,7 +30,7 @@ GESTURE_MIDI = {
 
 
 class HarmonizerEngine:
-    def __init__(self, dry=0.7, wet=0.6):
+    def __init__(self, dry=0.7, wet=0.85):
         self.lock = threading.Lock()
         self.intervals = []          # 현재 화음 (빈 리스트 = 드라이만)
         self.mode = "hand"           # 'hand' | 'face'
