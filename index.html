@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Voice Coder — 제스처 보코더</title>
+  <meta name="description" content="얼굴·손 제스처·윙크로 보코더를 연주하는 웹앱 (Julip 클론)" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="stage">
+    <video id="video" playsinline muted></video>
+    <canvas id="overlay"></canvas>
+
+    <!-- 상단 카피 -->
+    <div id="topcopy">개발자가 뮤지션이면 목소리도 코딩한다</div>
+
+    <!-- HUD -->
+    <div id="hud">
+      <span id="status" class="pill">대기</span>
+      <span id="mode-pill" class="pill">보코더: 가짜</span>
+      <span id="chord-pill" class="pill">Cmaj7 ○</span>
+      <span id="oct-pill" class="pill">옥타브 0</span>
+    </div>
+
+    <!-- 순간 힌트 -->
+    <div id="hint"></div>
+
+    <!-- 가사 -->
+    <div id="lyrics"></div>
+
+    <!-- 시작 화면 -->
+    <div id="start-screen">
+      <div class="start-card">
+        <h1>VOICE&nbsp;CODER</h1>
+        <p class="sub">손 제스처와 윙크로 보코더를 연주하세요</p>
+        <ul class="guide">
+          <li><b>✋ 손 펴기</b> — 화음 ON</li>
+          <li><b>✊ 주먹</b> — 화음 OFF</li>
+          <li><b>✌️ 브이</b> — 코드 전환</li>
+          <li><b>👌 OK</b> — 보코더 모드(가짜↔진짜)</li>
+          <li><b>😉 윙크</b> — 옥타브 ±1</li>
+          <li><b>😮 입 벌리기</b> — 필터 열림 (와우)</li>
+          <li><b>🖐 보조손 높이</b> — 공간감(딜레이)</li>
+        </ul>
+        <p class="warn">🎧 하울링 방지를 위해 <b>헤드폰</b> 사용을 권장합니다.</p>
+        <button id="start-btn">시작하기 (카메라·마이크 허용)</button>
+        <p class="tiny">노래를 흥얼거리면서 손을 펴보세요. 목소리가 화음으로 퍼집니다.</p>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
