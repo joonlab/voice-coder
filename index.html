@@ -4,10 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Voice Coder — 제스처 보코더</title>
-  <meta name="description" content="얼굴·손 제스처·윙크로 보코더를 연주하는 웹앱 (Julip 클론)" />
+  <meta name="description" content="얼굴·손 제스처로 보코더를 연주하는 웹앱 (midicam 스타일 데모)" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎤</text></svg>" />
   <meta property="og:title" content="Voice Coder — 제스처 보코더" />
-  <meta property="og:description" content="손 제스처·윙크로 보코더를 연주하는 브라우저 웹앱" />
+  <meta property="og:description" content="손가락 제스처로 MIDI 화음을, 눈썹·윙크로 페이스 모드를 연주하는 브라우저 웹앱" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -15,40 +15,56 @@
     <video id="video" playsinline muted></video>
     <canvas id="overlay"></canvas>
 
-    <!-- 상단 카피 -->
-    <div id="topcopy">개발자가 뮤지션이면 목소리도 코딩한다</div>
+    <!-- 상단 핸들 바 -->
+    <div id="handle-bar"><span class="rec-dot"></span>@voice_coder</div>
 
-    <!-- HUD -->
-    <div id="hud">
-      <span id="status" class="pill">대기</span>
-      <span id="mode-pill" class="pill">보코더: 가짜</span>
-      <span id="chord-pill" class="pill">Cmaj7 ○</span>
-      <span id="oct-pill" class="pill">옥타브 0</span>
+    <!-- 보조 상태 태그 -->
+    <div id="status-tags">
+      <span id="mode-tag" class="tag">HAND</span>
+      <span id="gesture-tag" class="tag">—</span>
     </div>
 
-    <!-- 순간 힌트 -->
-    <div id="hint"></div>
+    <!-- 곡 정보 박스 (반투명 마룬) -->
+    <div id="info-box">
+      <div class="track-title">VOICE&nbsp;CODER — LIVE SET</div>
+      <div class="track-sub">내가 만든 코드로 얼굴·손 제스처로 보컬을 연주합니다 🎤⭐</div>
+    </div>
 
-    <!-- 가사 -->
-    <div id="lyrics"></div>
+    <!-- 하단 도크: 피아노롤 + 터미널 -->
+    <div id="bottom-dock">
+      <canvas id="roll"></canvas>
+      <div id="terminal">
+        <div id="term-title">
+          <span class="tb-btns"><i></i><i></i><i></i></span>
+          midicam — Python midicam_with_face_mode.py — 91×7
+        </div>
+        <div id="log-body"></div>
+      </div>
+    </div>
 
     <!-- 시작 화면 -->
     <div id="start-screen">
       <div class="start-card">
         <h1>VOICE&nbsp;CODER</h1>
-        <p class="sub">손 제스처와 윙크로 보코더를 연주하세요</p>
-        <ul class="guide">
-          <li><b>✋ 손 펴기</b> — 화음 ON</li>
-          <li><b>✊ 주먹</b> — 화음 OFF</li>
-          <li><b>✌️ 브이</b> — 코드 전환</li>
-          <li><b>👌 OK</b> — 보코더 모드(가짜↔진짜)</li>
-          <li><b>😉 윙크</b> — 옥타브 ±1</li>
-          <li><b>😮 입 벌리기</b> — 필터 열림 (와우)</li>
-          <li><b>🖐 보조손 높이</b> — 공간감(딜레이)</li>
-        </ul>
+        <p class="sub">손가락 제스처로 화음을, 눈썹·윙크로 페이스 모드를 연주하세요</p>
+        <div class="guide-cols">
+          <ul class="guide">
+            <li><b>☝️ 검지</b> — C 화음</li>
+            <li><b>✌️ 브이</b> — E 화음</li>
+            <li><b>🤟 세 손가락</b> — D 화음</li>
+            <li><b>✋ 손바닥</b> — A 코러스</li>
+            <li><b>✊ 주먹</b> — 멈춤</li>
+          </ul>
+          <ul class="guide">
+            <li><b>🤨 눈썹 올리기</b> — 페이스 모드 전환</li>
+            <li><b>😈 페이스 모드</b> — 빌런 보코더</li>
+            <li><b>😉 윙크</b> — 뺨에 🌟</li>
+            <li><b>👌 OK</b> — 보코더 타입</li>
+          </ul>
+        </div>
         <p class="warn">🎧 하울링 방지를 위해 <b>헤드폰</b> 사용을 권장합니다.</p>
         <button id="start-btn">시작하기 (카메라·마이크 허용)</button>
-        <p class="tiny">노래를 흥얼거리면서 손을 펴보세요. 목소리가 화음으로 퍼집니다.</p>
+        <p class="tiny">손을 들고 손가락을 펴면 화음이 트리거됩니다. 흥얼거리면 목소리가 화음으로 퍼집니다.</p>
       </div>
     </div>
   </div>

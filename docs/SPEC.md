@@ -180,3 +180,31 @@
 - **거울 좌표**: video 반전과 canvas/제스처 좌표계 일치 주의(레포처럼 x 반전)
 - **MediaPipe 로딩**: wasm/model 최초 로드 지연 → 로딩 인디케이터 필수
 - **모바일**: 우선 데스크톱 크롬 타겟, 모바일은 best-effort
+
+---
+
+## 10. v2 고도화 (두 번째 영상 반영, 2026-06-03)
+
+분석 원본: `01_analysis/20260603_184936_qa_3.1-pro.md`
+
+두 번째 영상은 첫 영상과 **비주얼 정체성이 완전히 다름** — 깔끔한 무대가 아니라
+**개발자 화면 녹화 데모**(웹캠 + DAW 피아노롤 + 실시간 MIDI 터미널 로그).
+`midicam_with_face_mode.py`라는 실제 파이썬 스크립트가 돌아가는 화면.
+
+### 변경/추가 사항
+- **손가락 카운트 제스처** → 각자 다른 MIDI 노트/화음
+  - `index_up`→C(60, 낮음), `peace_sign`→E(64), `three_fingers_up`→D(62), `open_palm`→A(69, 높은 코러스), `closed_fist`→OFF
+- **눈썹 올리기(`eyebrow_raise`)** → **Hand ↔ Face 모드 토글**
+- **Face Mode**: 서브옥타브(-1) + 디스토션 = 빌런/로봇 보코더 톤
+- **윙크(`right_wink`/`left_wink`)** → 뺨 좌표에 🌟 이모지 렌더 + 로그
+- **바운딩 박스 내부 랜드마크 점/연결선** 렌더 (첫 영상은 박스만)
+- **라벨**: 배경칩 제거, 마젠타 텍스트
+- **터미널 로그 UI**(`midilog.js`): 타이틀바 `midicam — Python midicam_with_face_mode.py — 91×7`,
+  `HH:MM:SS,sss - INFO - MIDI Note On/Off / Triggered MIDI for gesture / Detected face gesture` 자동 스크롤
+- **DAW 피아노롤**(`pianoroll.js`): 트리거된 MIDI 노트가 좌로 흐르는 미니 캔버스
+- **곡 정보 박스**: 반투명 마룬(#4a121e) + 그리드 패턴 (제목은 저작권상 자작 placeholder)
+- 가사 자막 제거(`lyrics.js` 미사용) — 원본 2영상에도 가사 없음
+
+### 저작권 처리
+- 원곡 제목/가사/캡션 문구는 재현하지 않음 → placeholder/자작 텍스트
+- 기능 텍스트(open_palm, MIDI Note On 등), 로그, 🌟 이모지는 기능 요소라 재현
