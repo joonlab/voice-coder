@@ -36,7 +36,7 @@ export class AudioEngine {
   constructor() {
     this.ctx = null;
     this.ready = false;
-    this.vocoderType = "fake";   // 'fake' | 'real'
+    this.vocoderType = "real";   // 'fake' | 'real' (기본: 진짜 채널 보코더 = 목소리 변조)
     this.audioMode = "hand";     // 'hand' | 'face'
     this.chordOn = false;
     this.octaveShift = 0;
@@ -94,6 +94,18 @@ export class AudioEngine {
     this.dry.connect(comp);
     this.delay.connect(this.wet); this.wet.connect(comp);
     comp.connect(this.master);
+
+    // 드라이 보컬 믹스 (내 목소리도 화음과 겹쳐 들리게) — 하울링 방지 위해 헤드폰 권장
+    this.micHP = ctx.createBiquadFilter();
+    this.micHP.type = "highpass"; this.micHP.frequency.value = 85;
+    this.micDry = ctx.createGain(); this.micDry.gain.value = 0.32;
+    this.mic.connect(this.micHP); this.micHP.connect(this.micDry);
+    this.micDry.connect(this.master);
+
+    // 출력 레벨 측정 (검증/시각 리액티브용)
+    this.outAnalyser = ctx.createAnalyser(); this.outAnalyser.fftSize = 512;
+    this._obuf = new Float32Array(512);
+    this.master.connect(this.outAnalyser);
     this.master.connect(ctx.destination);
 
     // 가짜 보코더 경로
@@ -230,5 +242,11 @@ export class AudioEngine {
     return level;
   }
 
+  getOutputLevel() {
+    if (!this.outAnalyser) return 0;
+    this.outAnalyser.getFloatTimeDomainData(this._obuf);
+    let s = 0; for (let i = 0; i < this._obuf.length; i++) s += this._obuf[i] * this._obuf[i];
+    return Math.sqrt(s / this._obuf.length);
+  }
   async resume() { if (this.ctx && this.ctx.state === "suspended") await this.ctx.resume(); }
 }
