@@ -32,17 +32,16 @@ body {
 /* 상단 핸들 바 */
 #handle-bar {
   position: absolute; top: 0; left: 0; right: 0; height: 34px; z-index: 5;
-  display: flex; align-items: center; gap: 7px; padding: 0 14px;
+  display: flex; align-items: center; justify-content: center; gap: 7px; padding: 0 14px;
   font-size: 14px; font-weight: 600; color: #fff;
   background: linear-gradient(180deg, rgba(0,0,0,0.5), transparent);
   text-shadow: 0 1px 6px rgba(0,0,0,0.8);
 }
-.rec-dot { width: 8px; height: 8px; border-radius: 50%; background: #ff3b3b;
-  box-shadow: 0 0 8px #ff3b3b; animation: blink 1.4s infinite; }
-@keyframes blink { 50% { opacity: 0.3; } }
+.rec-dot { display: none; } /* 원본 julip 핸들엔 점 없음 */
 
 /* 보조 상태 태그 */
-#status-tags { position: absolute; top: 40px; right: 10px; z-index: 5; display: flex; gap: 5px; }
+#status-tags { display: none; } /* 원본 영상엔 없음 — 모드는 터미널 로그로 표현 */
+#status-tags-off { position: absolute; top: 40px; right: 10px; z-index: 5; gap: 5px; }
 .tag {
   font: 600 11px ui-monospace, Menlo, monospace; padding: 3px 8px; border-radius: 6px;
   background: rgba(10,10,18,0.6); border: 1px solid rgba(255,255,255,0.14); color: #cde;
@@ -53,13 +52,12 @@ body {
 /* 곡 정보 박스 */
 #info-box {
   position: absolute; left: 12px; right: 12px; bottom: calc(38% + 10px); z-index: 4;
-  padding: 12px 14px; border-radius: 10px;
+  padding: 14px 14px 18px; border-radius: 4px;
   background:
-    repeating-linear-gradient(0deg, rgba(255,255,255,0.04) 0 1px, transparent 1px 11px),
-    repeating-linear-gradient(90deg, rgba(255,255,255,0.04) 0 1px, transparent 1px 11px),
-    linear-gradient(180deg, rgba(74,18,30,0.9), rgba(74,18,30,0.78));
-  border: 1px solid rgba(255,45,149,0.25);
-  box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.025) 0 1px, transparent 1px 13px),
+    repeating-linear-gradient(90deg, rgba(255,255,255,0.025) 0 1px, transparent 1px 13px),
+    linear-gradient(180deg, rgba(8,4,10,0) 0%, rgba(20,8,14,0.55) 55%, rgba(20,8,14,0.82) 100%);
+  border: none;
 }
 .track-title { font-size: clamp(17px, 3vh, 24px); font-weight: 800; letter-spacing: -0.01em;
   text-shadow: 0 2px 10px rgba(0,0,0,0.6); }
